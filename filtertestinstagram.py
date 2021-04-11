@@ -3,6 +3,8 @@
 #2 Click the check mark aka commit
 #3 Click the 3 elipses(...) near the checkmark
 #4 Select Push from menu
+
+#mve block of code eft right is ctrl +[ or ]
 import cv2
 import numpy as np
 
@@ -12,9 +14,13 @@ import numpy as np
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_eye.xml')
 ## Open CV
-img = cv2.imread('pic2.jpg')
-halo = cv2.imread('witch.png')
-
+img = cv2.imread('fam3.jpg')
+#halo = cv2.imread('witch.png')
+halo = cv2.imread('mask.png')
+#$halo2 = cv2.imread('halo.png')
+print(halo.shape, 'Org filter size')
+print(img.shape, "PHOTO")
+#print(halo2.shape, "Halo")
 # Haar Cascades and many facial recognition algorithms require images to be in grayscale
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 gray_halo = cv2.cvtColor(halo, cv2.COLOR_BGR2GRAY)
@@ -27,7 +33,10 @@ original_mask_inv = cv2.bitwise_not(original_mask)
 #find faces in image using classifier
 faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-# halo.shape = the ".shape" function will get the h,w,channel attributes of the halo shape
+# halo.shape = the ".shape" function will get the h,w,channel attributes of the halo shape Ex.(1202, 789, 3)
+# Height represents the number of pixel rows in the image or the number of pixels in each column of the image array.
+# Width represents the number of pixel columns in the image or the number of pixels in each row of the image array.
+# Number of Channels represents the number of components used to represent each pixel. 3- RGB
 # creating 3 variables for the 3 attributes to be assigned to
 orig_halo_h,orig_halo_w,halo_channels = halo.shape
 
@@ -36,28 +45,25 @@ img_h,img_w,img_channels = img.shape
 
 #for each face
 for (x,y,w,h) in faces:
-    #draw rectangle around face
-   # img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)
 
-
-        #coordinates of face region
+#coordinates of face region
     face_w = w
     face_h = h
     face_x1 = x
     face_x2 = face_x1 + face_w
     face_y1 = y
     face_y2 = face_y1 + face_h
-    #within region of interest find eyes
-    #eyes = eye_cascade.detectMultiScale(roi_g)
-    #for each eye
+
      #halo size in relation to face by scaling
     halo_width = int(1.5 * face_w)
     halo_height = int(halo_width * orig_halo_h / orig_halo_w)
+    #Test on halo
+    #halo_height = int(halo_width * .5)
     
     #setting location of coordinates of halo
     halo_x1 = face_x2 - int(face_w/2) - int(halo_width/2)
     halo_x2 = halo_x1 + halo_width
-    halo_y1 = face_y1 - int(face_h*1.25)
+    halo_y1 = face_y1 - int(face_h*.33)
     halo_y2 = halo_y1 + halo_height 
 
     #check to see if out of frame
@@ -90,11 +96,15 @@ for (x,y,w,h) in faces:
     #put back in original image
     img[halo_y1:halo_y2, halo_x1:halo_x2] = dst
 
-
 cv2.imshow('img',img) #display image
 cv2.waitKey(0) #wait until key is pressed to proceed
 cv2.destroyAllWindows() #close all windows
-print(halo.shape)
+print(halo.shape,"resized halo")
+print(face_w, "face w") 
+print(face_h, "face_h")
+print(face_x1, "face_x1")    
+print(face_y1, "face_y1")    
+
 
 
 # Last update 12:46am -- Error Message "inv_scale_x > 0 in function 'cv::resize'" - Possible data type issue
