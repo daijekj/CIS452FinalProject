@@ -1,44 +1,29 @@
-#To commit and push to github
-#1 Click Source Control Icon
-#2 Click the check mark aka commit
-#3 Click the 3 elipses(...) near the checkmark
-#4 Select Push from menu
-
-#mve block of code eft right is ctrl +[ or ]
 import cv2
 import numpy as np
-
-#path = '/Users/melis/anaconda3/Lib/site-packages/cv2/data'
 
 #get image classifiers
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_eye.xml')
 ## Open CV
-img = cv2.imread('fam3.jpg')
-#halo = cv2.imread('witch.png')
-halo = cv2.imread('mask.png')
-#$halo2 = cv2.imread('halo.png')
-print(halo.shape, 'Org filter size')
-print(img.shape, "PHOTO")
-#print(halo2.shape, "Halo")
+img = cv2.imread('baby1.jpg')
+#filter image 
+filter_img = cv2.imread('mask.png')
+
+
 # Haar Cascades and many facial recognition algorithms require images to be in grayscale
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-gray_halo = cv2.cvtColor(halo, cv2.COLOR_BGR2GRAY)
+gray_filter_img = cv2.cvtColor(filter_img, cv2.COLOR_BGR2GRAY)
 
-#Note: Use THRESH_BINARY_INV when image isalready on transparent background
-#      cv2.THRESH_BINARY if image has a white background
-ret, original_mask = cv2.threshold(gray_halo, 10, 255, cv2.THRESH_BINARY_INV)
+
+ret, original_mask = cv2.threshold(gray_filter_img, 10, 255, cv2.THRESH_BINARY_INV)
 original_mask_inv = cv2.bitwise_not(original_mask)
 
 #find faces in image using classifier
 faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
-# halo.shape = the ".shape" function will get the h,w,channel attributes of the halo shape Ex.(1202, 789, 3)
-# Height represents the number of pixel rows in the image or the number of pixels in each column of the image array.
-# Width represents the number of pixel columns in the image or the number of pixels in each row of the image array.
-# Number of Channels represents the number of components used to represent each pixel. 3- RGB
+
 # creating 3 variables for the 3 attributes to be assigned to
-orig_halo_h,orig_halo_w,halo_channels = halo.shape
+orig_filter_img_h,orig_filter_img_w,filter_img_channels = filter_img.shape
 
 # get shape of img
 img_h,img_w,img_channels = img.shape
@@ -54,65 +39,55 @@ for (x,y,w,h) in faces:
     face_y1 = y
     face_y2 = face_y1 + face_h
 
-     #halo size in relation to face by scaling
-    halo_width = int(1.5 * face_w)
-    halo_height = int(halo_width * orig_halo_h / orig_halo_w)
-    #Test on halo
-    #halo_height = int(halo_width * .5)
+     #filter_img size in relation to face by scaling
+    filter_img_width = int(1.5 * face_w)
+    filter_img_height = int(filter_img_width * orig_filter_img_h / orig_filter_img_w)
+    #Test on filter_img
+    #filter_img_height = int(filter_img_width * .5)
     
-    #setting location of coordinates of halo
-    halo_x1 = face_x2 - int(face_w/2) - int(halo_width/2)
-    halo_x2 = halo_x1 + halo_width
-    halo_y1 = face_y1 - int(face_h*.33)
-    halo_y2 = halo_y1 + halo_height 
+    #setting location of coordinates of filter_img
+    filter_img_x1 = face_x2 - int(face_w/2) - int(filter_img_width/2)
+    filter_img_x2 = filter_img_x1 + filter_img_width
+    filter_img_y1 = face_y1 - int(face_h*.33)
+    filter_img_y2 = filter_img_y1 + filter_img_height 
 
     #check to see if out of frame
-    if halo_x1 < 0:
-        halo_x1 = 0
-    if halo_y1 < 0:
-        halo_y1 = 0
-    if halo_x2 > img_w:
-        halo_x2 = img_w
-    if halo_y2 > img_h:
-        halo_y2 = img_h
+    if filter_img_x1 < 0:
+        filter_img_x1 = 0
+    if filter_img_y1 < 0:
+        filter_img_y1 = 0
+    if filter_img_x2 > img_w:
+        filter_img_x2 = img_w
+    if filter_img_y2 > img_h:
+        filter_img_y2 = img_h
 
     #Account for any out of frame changes
-    halo_width = halo_x2 - halo_x1
-    halo_height = halo_y2 - halo_y1
+    filter_img_width = filter_img_x2 - filter_img_x1
+    filter_img_height = filter_img_y2 - filter_img_y1
 
-    #resize halo to fit on face
-    halo = cv2.resize(halo, (halo_width,halo_height), interpolation = cv2.INTER_AREA)
-    mask = cv2.resize(original_mask, (halo_width,halo_height), interpolation = cv2.INTER_AREA)
-    mask_inv = cv2.resize(original_mask_inv, (halo_width,halo_height), interpolation = cv2.INTER_AREA)
+    #resize filter_img to fit on face
+    filter_img = cv2.resize(filter_img, (filter_img_width,filter_img_height), interpolation = cv2.INTER_AREA)
+    mask = cv2.resize(original_mask, (filter_img_width,filter_img_height), interpolation = cv2.INTER_AREA)
+    mask_inv = cv2.resize(original_mask_inv, (filter_img_width,filter_img_height), interpolation = cv2.INTER_AREA)
 
-    #take ROI for halo from background that is equal to size of halo image
-    roi = img[halo_y1:halo_y2, halo_x1:halo_x2]
+    #take ROI for filter_img from background that is equal to size of filter_img image
+    roi = img[filter_img_y1:filter_img_y2, filter_img_x1:filter_img_x2]
 
-    #original image in background (bg) where halo is not present
+    #original image in background (bg) where filter_img is not present
     roi_bg = cv2.bitwise_and(roi,roi,mask = mask)
-    roi_fg = cv2.bitwise_and(halo,halo,mask=mask_inv)
+    roi_fg = cv2.bitwise_and(filter_img,filter_img,mask=mask_inv)
     dst = cv2.add(roi_bg,roi_fg)
 
     #put back in original image
-    img[halo_y1:halo_y2, halo_x1:halo_x2] = dst
+    img[filter_img_y1:filter_img_y2, filter_img_x1:filter_img_x2] = dst
 
 cv2.imshow('img',img) #display image
+cv2.imwrite('aftermask.jpg', img)
+
 cv2.waitKey(0) #wait until key is pressed to proceed
 cv2.destroyAllWindows() #close all windows
-print(halo.shape,"resized halo")
-print(face_w, "face w") 
-print(face_h, "face_h")
-print(face_x1, "face_x1")    
-print(face_y1, "face_y1")    
 
 
 
-# Last update 12:46am -- Error Message "inv_scale_x > 0 in function 'cv::resize'" - Possible data type issue
-# Read Q&A below:
-# https://stackoverflow.com/questions/55428929/error-while-resizing-image-error-215assertion-failed-func-0-in-functio
 
-#Notes: 4/9/2021 **Add issue to documentation**
-#The cv resize error message appears to do with the resizing of the halo object  === Line# 35 halo_width = int(.5 * face_w)
-#The program runs with the witch hat width at halo_width = int(1.5 * face_w) but not int(.5 * face_w)
-#Shape info of witch.png = (395, 360, 3) when running
-#Need to do some math on the original shape size of the halo code function print(halo.shape)retunns the halo sizing
+
