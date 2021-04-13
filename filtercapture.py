@@ -5,7 +5,7 @@ import numpy as np
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades +'haarcascade_eye.xml')
 
-halo = cv2.imread('mask.png')
+halo = cv2.imread('vendetta.png')
 
   # creating 3 variables for the 3 attributes to be assigned to
 orig_halo_h,orig_halo_w,halo_channels = halo.shape
@@ -17,7 +17,7 @@ gray_halo = cv2.cvtColor(halo, cv2.COLOR_BGR2GRAY)
 ret, original_mask = cv2.threshold(gray_halo, 10, 255, cv2.THRESH_BINARY_INV)
 original_mask_inv = cv2.bitwise_not(original_mask)
 
-#read video
+#read videoq
 cap = cv2.VideoCapture(0)
 ret, img = cap.read()
 img_h, img_w = img.shape[:2]
